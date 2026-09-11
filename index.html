@@ -1,0 +1,1316 @@
+<!doctype html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Effective Credit — Prompt Efficiency Arena</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet"><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script>window.__API_URL__ = window.__API_URL__ || "http://localhost:5000/api";</script><style>
+    :root {
+      --bg: #F8F9FA;
+      --bg-elevated: #FFFFFF;
+      --text: #0F172A;
+      --text-dim: #475569;
+      --accent: #0EA5E9;
+      --accent-hover: #0284C7;
+      --accent-glow: rgba(14, 165, 233, 0.35);
+      --border: rgba(15, 23, 42, 0.12);
+      --glass: rgba(255, 255, 255, 0.72);
+      --glass-border: rgba(15, 23, 42, 0.08);
+      --danger: #DC2626;
+      --success: #059669;
+      --warning: #D97706;
+      --card-shadow: 0 8px 32px rgba(15, 23, 42, 0.08);
+      --panel-glow: 0 0 40px rgba(14, 165, 233, 0.12);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0D0E15;
+      --bg-elevated: #161822;
+      --text: #F1F5F9;
+      --text-dim: #94A3B8;
+      --accent: #F43F5E;
+      --accent-hover: #E11D48;
+      --accent-glow: rgba(244, 63, 94, 0.4);
+      --border: rgba(192, 132, 252, 0.18);
+      --glass: rgba(22, 24, 34, 0.78);
+      --glass-border: rgba(192, 132, 252, 0.15);
+      --danger: #F87171;
+      --success: #34D399;
+      --warning: #FBBF24;
+      --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+      --panel-glow: 0 0 50px rgba(192, 132, 252, 0.12);
+      --secondary: #C084FC;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.35s ease, color 0.35s ease;
+    }
+
+    body {
+      position: relative;
+      user-select: none;
+    }
+
+    .bg-radial {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, var(--accent-glow) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 85% 80%, rgba(192, 132, 252, 0.08) 0%, transparent 50%),
+        var(--bg);
+      transition: background 0.4s ease;
+    }
+
+    [data-theme="light"] .bg-radial {
+      background:
+        radial-gradient(ellipse 80% 60% at 15% 15%, rgba(14, 165, 233, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 40% at 90% 85%, rgba(14, 165, 233, 0.06) 0%, transparent 50%),
+        var(--bg);
+    }
+
+    #floating-words {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .fw-word {
+      position: absolute;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: clamp(11px, 1.6vw, 15px);
+      color: var(--text);
+      opacity: 0.09;
+      white-space: nowrap;
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: opacity 0.6s ease;
+      will-change: transform;
+    }
+
+    [data-theme="dark"] .fw-word {
+      opacity: 0.11;
+      color: var(--secondary, #C084FC);
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .screen.hidden { display: none !important; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.25); opacity: 0.75; }
+    }
+    @keyframes pulse-timer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+    @keyframes typing-glow {
+      0%, 100% { box-shadow: 0 0 0 0 transparent; }
+      50% { box-shadow: 0 0 0 3px var(--accent-glow); }
+    }
+    @keyframes statusPop {
+      0% { transform: scale(0.8); opacity: 0; }
+      60% { transform: scale(1.05); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes statIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    #login-screen {
+      z-index: 50;
+      background: var(--bg);
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--glass);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 36px 28px;
+      box-shadow: var(--card-shadow), var(--panel-glow);
+      animation: slideUp 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .brand { text-align: center; margin-bottom: 8px; }
+
+    .brand-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.85rem;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .glow-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #F59E0B;
+      box-shadow: 0 0 12px 3px rgba(245, 158, 11, 0.7);
+      animation: pulse-dot 1.8s ease-in-out infinite;
+    }
+
+    .brand-sub {
+      text-align: center;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+    }
+
+    .field { margin-bottom: 18px; }
+
+    .field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+    }
+
+    .field input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      transform: translateY(-1px);
+    }
+
+    .email-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .chip.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .chip.professional.active {
+      background: var(--success);
+      border-color: var(--success);
+    }
+
+    .login-note {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      line-height: 1.45;
+      margin: 16px 0 22px;
+      padding: 10px 12px;
+      background: rgba(14, 165, 233, 0.06);
+      border-radius: 10px;
+      border-left: 3px solid var(--accent);
+    }
+
+    [data-theme="dark"] .login-note {
+      background: rgba(244, 63, 94, 0.08);
+      border-left-color: var(--accent);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 13px 22px;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.2s, background 0.2s, opacity 0.2s;
+      user-select: none;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-primary {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 18px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 6px 24px var(--accent-glow);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(5, 150, 105, 0.35);
+    }
+
+    .btn-success:hover { filter: brightness(1.08); }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    #nudge-overlay {
+      z-index: 60;
+      background: rgba(13, 14, 21, 0.92);
+      backdrop-filter: blur(8px);
+    }
+
+    .nudge-card {
+      max-width: 400px;
+      text-align: center;
+      padding: 32px 24px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 18px;
+      box-shadow: var(--card-shadow);
+      animation: scaleIn 0.4s ease;
+    }
+
+    .nudge-card h2 {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
+
+    .nudge-card p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    #main-app {
+      z-index: 20;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .top-bar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
+      z-index: 30;
+      animation: fadeIn 0.45s ease;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #8B5CF6);
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .user-meta { min-width: 0; }
+
+    .user-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-email {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .timer-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .timer {
+      font-family: 'Orbitron', monospace;
+      font-weight: 600;
+      font-size: 1.35rem;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      min-width: 72px;
+      text-align: center;
+      transition: color 0.3s;
+    }
+
+    .timer.critical {
+      color: var(--danger);
+      animation: pulse-timer 0.8s ease-in-out infinite;
+    }
+
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 14px 120px;
+      position: relative;
+      z-index: 25;
+    }
+
+    .prompt-panel {
+      background: var(--glass);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 16px;
+      animation: slideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .prompt-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      letter-spacing: 0.03em;
+    }
+
+    .char-count {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    #prompt-area {
+      width: 100%;
+      min-height: 160px;
+      max-height: 320px;
+      resize: vertical;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    #prompt-area:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      animation: typing-glow 2s ease-in-out infinite;
+    }
+
+    #prompt-area[readonly] {
+      cursor: default;
+      opacity: 0.95;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
+    .live-score {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .score-chip {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .score-chip:hover { transform: translateY(-1px); }
+
+    .score-chip strong {
+      color: var(--accent);
+      margin-left: 4px;
+    }
+
+    .actions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+      animation: fadeIn 0.5s ease 0.1s both;
+    }
+
+    .btn-finish {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .btn-finish:hover:not(:disabled) {
+      background: var(--accent-hover);
+    }
+
+    .btn-finish:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    #creation-types {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    #creation-types.visible { display: grid; }
+
+    .create-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 16px 10px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.18s, box-shadow 0.2s, border-color 0.2s;
+      box-shadow: 0 4px 0 rgba(0,0,0,0.12);
+    }
+
+    .create-btn:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 7px 0 rgba(0,0,0,0.1), 0 8px 20px var(--accent-glow);
+    }
+
+    .create-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 2px 0 rgba(0,0,0,0.15);
+    }
+
+    .create-btn .emoji { font-size: 1.6rem; }
+    .create-btn .label { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.95rem; }
+    .create-btn .cost { font-size: 0.72rem; color: var(--text-dim); }
+
+    .cert-panel {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.45s ease;
+      display: none;
+    }
+
+    .cert-panel.visible { display: block; }
+
+    .cert-panel h3 {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .cert-status {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+
+    .cert-status.pending { color: var(--warning); }
+    .cert-status.accepted { color: var(--success); }
+    .cert-status.rejected { color: var(--danger); }
+
+    #result-modal {
+      z-index: 70;
+      background: rgba(13, 14, 21, 0.75);
+      backdrop-filter: blur(6px);
+    }
+
+    .modal-card {
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 28px 22px;
+      box-shadow: var(--card-shadow), var(--panel-glow);
+      animation: slideUp 0.4s ease;
+    }
+
+    .modal-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.4rem;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .credit-big {
+      text-align: center;
+      font-family: 'Orbitron', monospace;
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-shadow: 0 0 30px var(--accent-glow);
+      margin: 8px 0 4px;
+      line-height: 1;
+    }
+
+    .credit-label {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-bottom: 20px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .stat-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: statIn 0.4s ease forwards;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+    .stat-card:nth-child(5) { animation-delay: 0.25s; }
+    .stat-card:nth-child(6) { animation-delay: 0.3s; }
+
+    .stat-name {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-val {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    .stat-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .stat-bar > i {
+      display: block;
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      width: 0;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .tier-box {
+      text-align: center;
+      padding: 14px;
+      border-radius: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .tier-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .tier-note {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .modal-actions .btn { flex: 1; min-width: 120px; }
+
+    #elim-screen {
+      z-index: 100;
+      background: #0A0A0F;
+      flex-direction: column;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .elim-title {
+      font-family: 'Orbitron', monospace;
+      font-size: clamp(1.8rem, 7vw, 2.8rem);
+      font-weight: 700;
+      color: var(--danger);
+      text-shadow: 0 0 40px rgba(248, 113, 113, 0.5);
+      margin-bottom: 16px;
+      letter-spacing: 0.04em;
+    }
+
+    .elim-msg {
+      max-width: 360px;
+      font-size: 0.95rem;
+      color: #94A3B8;
+      line-height: 1.55;
+    }
+
+    #kb-toggle {
+      position: fixed;
+      bottom: 18px;
+      right: 16px;
+      z-index: 90;
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, box-shadow 0.2s;
+    }
+
+    #kb-toggle:active { transform: scale(0.92); }
+    #kb-toggle.hidden { display: none; }
+
+    #floating-kb {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 85;
+      width: min(420px, calc(100vw - 16px));
+      background: var(--bg-elevated);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+      padding: 8px;
+      display: none;
+      user-select: none;
+      touch-action: none;
+      animation: scaleIn 0.25s ease;
+    }
+
+    #floating-kb.visible { display: block; }
+
+    .kb-handle {
+      text-align: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      padding: 6px 0 8px;
+      cursor: grab;
+      font-family: 'Rajdhani', sans-serif;
+    }
+
+    .kb-handle:active { cursor: grabbing; }
+
+    .kb-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .kb-row {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .kb-key {
+      flex: 1;
+      min-width: 0;
+      height: 42px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.1s, transform 0.08s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .kb-key:active, .kb-key.pressed {
+      background: var(--accent);
+      color: #fff;
+      transform: scale(0.94);
+    }
+
+    .kb-key.wide { flex: 1.6; }
+    .kb-key.space { flex: 4; }
+    .kb-key.special {
+      background: rgba(128,128,128,0.12);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    #admin-app {
+      z-index: 20;
+      flex-direction: column;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .admin-header {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: var(--glass);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .admin-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .admin-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .admin-section {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .admin-section h3 {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .request-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      animation: statusPop 0.35s ease;
+    }
+
+    .request-card .rc-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .request-card .rc-meta {
+      font-size: 0.78rem;
+      color: var(--text-dim);
+      margin: 4px 0 10px;
+      line-height: 1.4;
+    }
+
+    .request-card .rc-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .request-card .rc-actions .btn {
+      padding: 8px 14px;
+      font-size: 0.9rem;
+      width: auto;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-pending { background: rgba(217, 119, 6, 0.15); color: var(--warning); }
+    .badge-accepted { background: rgba(5, 150, 105, 0.15); color: var(--success); }
+    .badge-rejected { background: rgba(220, 38, 38, 0.15); color: var(--danger); }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      padding: 24px 12px;
+    }
+
+    .stats-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .mini-stat {
+      flex: 1;
+      min-width: 100px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .mini-stat .ms-val {
+      font-family: 'Orbitron', monospace;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .mini-stat .ms-label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 95;
+      background: var(--bg-elevated);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      box-shadow: 0 8px 30px var(--accent-glow);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      max-width: 90vw;
+      text-align: center;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 480px) {
+      .login-card { padding: 28px 18px; }
+      .brand-title { font-size: 1.55rem; }
+      .timer { font-size: 1.15rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .kb-key { height: 40px; font-size: 0.9rem; }
+    }
+
+    @media (orientation: landscape) and (max-height: 500px) {
+      .main-content { padding-bottom: 100px; }
+      #prompt-area { min-height: 100px; max-height: 160px; }
+      #floating-kb { bottom: 60px; }
+    }
+  
+
+.challenge-section { width:100%; margin: 0 auto 22px; }
+.challenge-label { font-family: Rajdhani, sans-serif; font-weight:700; font-size:1.05rem; margin-bottom:10px; color:var(--text); }
+.challenge-image-wrap { width:100%; overflow:hidden; border:1px solid var(--border); border-radius:16px; background:var(--bg-elevated); box-shadow:0 10px 35px rgba(0,0,0,.12); }
+.challenge-image { display:block; width:100%; height:auto; aspect-ratio:16/9; object-fit:contain; }
+@media (max-width: 700px) { .challenge-section { margin-bottom:16px; } .challenge-label { font-size:.98rem; } .challenge-image-wrap { border-radius:12px; } }
+.admin-table-wrap { width:100%; overflow-x:auto; }
+.admin-submissions-table { width:100%; min-width:680px; border-collapse:collapse; }
+.admin-submissions-table th,.admin-submissions-table td { padding:12px; border-bottom:1px solid var(--border); }
+</style></head><body>
+  <div class="bg-radial"></div>
+  <div id="floating-words" aria-hidden="true"></div>
+
+  <div id="login-screen" class="screen">
+    <div class="login-card">
+      <div class="brand">
+        <div class="brand-title">EFFECTIVE CREDIT <span class="glow-dot"></span></div>
+      </div>
+      <p class="brand-sub">Prompt Efficiency Arena — enter to compete</p>
+
+      <div class="field">
+        <label for="name-input">Your name</label>
+        <input id="name-input" type="text" autocomplete="name" placeholder="Enter your name" maxlength="40" />
+      </div>
+
+      <div class="field">
+        <label for="registration-input">Registration number</label>
+        <input id="registration-input" type="text" autocomplete="off" placeholder="Enter your registration number" maxlength="40" />
+      </div>
+
+      <div class="field">
+        <label for="email-input">Contact email</label>
+        <input id="email-input" type="email" autocomplete="email" placeholder="you@domain.com" />
+        <div class="email-chips">
+          <span class="chip" id="chip-gmail">Gmail</span>
+          <span class="chip" id="chip-outlook">Outlook</span>
+          <span class="chip" id="chip-pro">Professional</span>
+        </div>
+      </div>
+
+      <p class="login-note">
+        Accepted: Gmail, Outlook/Hotmail/Live/MSN, or any professional domain (contains a dot).<br />
+        Admin: use admin email to open the dashboard.<br />
+        Full-screen mode will open when you enter. Leaving it after start = elimination.
+      </p>
+
+      <button class="btn btn-primary" id="enter-btn" disabled>Enter the arena</button>
+    </div>
+  </div>
+
+  <div id="nudge-overlay" class="screen hidden">
+    <div class="nudge-card">
+      <h2>Full-screen required</h2>
+      <p>
+        Split-screen and floating windows are not allowed.<br />
+        Leaving full-screen after the contest starts will eliminate you.
+      </p>
+      <button class="btn btn-primary" id="nudge-fs-btn">Go full-screen</button>
+    </div>
+  </div>
+
+  <div id="main-app" class="screen hidden">
+    <header class="top-bar">
+      <div class="user-info">
+        <div class="avatar" id="avatar">?</div>
+        <div class="user-meta">
+          <div class="user-name" id="display-name">—</div>
+          <div class="user-email" id="display-email">—</div>
+        </div>
+      </div>
+      <div class="timer-wrap">
+        <div class="timer" id="timer">10:00</div>
+        <button class="icon-btn" id="fs-btn" title="Toggle full-screen">⛶</button>
+        <button class="icon-btn" id="theme-btn" title="Toggle theme">☀</button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <section class="challenge-section">
+        <div class="challenge-label">Give a prompt for the above image</div>
+        <div class="challenge-image-wrap">
+          <img class="challenge-image" src="/challenge.svg" alt="Prompt challenge reference image" />
+        </div>
+      </section>
+
+      <div class="prompt-panel">
+        <div class="prompt-header">
+          <span class="prompt-label">Your Prompt</span>
+          <span class="char-count" id="char-count">0 chars</span>
+        </div>
+        <textarea id="prompt-area" placeholder="Type your prompt here to see it scored live..." rows="6"></textarea>
+        <p class="hint" id="input-hint">Desktop: selection/copy/paste disabled · floating keyboard available (⌨️ or Ctrl/Cmd+K)</p>
+        <div class="live-score">
+          <span class="score-chip">Credits<strong id="live-credits">0.0</strong></span>
+          <span class="score-chip">Words<strong id="live-words">0</strong></span>
+          <span class="score-chip">Tier<strong id="live-tier">—</strong></span>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button class="btn btn-finish" id="finish-btn">Finish & rate this prompt</button>
+        <button class="btn btn-secondary hidden" id="view-results-btn">View my results</button>
+      </div>
+
+      <div class="cert-panel" id="cert-panel">
+        <h3>📜 E-Certificate</h3>
+        <p class="cert-status" id="cert-status">After finishing, you can request an e-certificate. Admin will review and issue it.</p>
+        <button class="btn btn-success" id="request-cert-btn" style="width:auto;padding:10px 18px;">Request E-Certificate</button>
+      </div>
+
+      <div id="creation-types">
+        <button class="create-btn" data-type="Image" data-cost="8">
+          <span class="emoji">🖼️</span>
+          <span class="label">Image</span>
+          <span class="cost">~8 credits</span>
+        </button>
+        <button class="create-btn" data-type="Presentation" data-cost="14">
+          <span class="emoji">📊</span>
+          <span class="label">Presentation</span>
+          <span class="cost">~14 credits</span>
+        </button>
+        <button class="create-btn" data-type="Song" data-cost="10">
+          <span class="emoji">🎵</span>
+          <span class="label">Song</span>
+          <span class="cost">~10 credits</span>
+        </button>
+        <button class="create-btn" data-type="Web Page" data-cost="12">
+          <span class="emoji">🌐</span>
+          <span class="label">Web Page</span>
+          <span class="cost">~12 credits</span>
+        </button>
+        <button class="create-btn" data-type="Video" data-cost="20">
+          <span class="emoji">🎬</span>
+          <span class="label">Video</span>
+          <span class="cost">~20 credits</span>
+        </button>
+      </div>
+    </main>
+  </div>
+
+  <div id="admin-app" class="screen hidden">
+    <header class="admin-header">
+      <div>
+        <div class="admin-title">Admin Dashboard</div>
+        <div style="font-size:0.78rem;color:var(--text-dim);" id="admin-meta">mshak · abdhitha123@gmail.com</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="icon-btn" id="admin-theme-btn" title="Toggle theme">☀</button>
+        <button class="btn btn-secondary" id="admin-refresh-btn" style="width:auto;padding:8px 14px;font-size:0.9rem;">Refresh</button>
+        <button class="btn btn-secondary" id="admin-logout" style="width:auto;padding:8px 14px;font-size:0.9rem;">Logout</button>
+      </div>
+    </header>
+    <div class="admin-content">
+      <div class="stats-row" id="admin-stats">
+        <div class="mini-stat"><div class="ms-val" id="stat-pending">0</div><div class="ms-label">Pending</div></div>
+        <div class="mini-stat"><div class="ms-val" id="stat-accepted">0</div><div class="ms-label">Accepted</div></div>
+        <div class="mini-stat"><div class="ms-val" id="stat-total">0</div><div class="ms-label">Total Requests</div></div>
+      </div>
+
+      <div class="admin-section">
+        <h3>🏆 Competition Submissions</h3>
+        <div id="admin-submissions-list">
+          <div class="empty-state">Loading submissions...</div>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h3>📋 Certificate Requests</h3>
+        <div id="requests-list">
+          <div class="empty-state">No certificate requests yet.</div>
+        </div>
+      </div>
+
+      <div class="admin-section">
+        <h3>👥 Login Counts (by email)</h3>
+        <div id="logins-list">
+          <div class="empty-state">No contestant logins recorded.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="result-modal" class="screen hidden">
+    <div class="modal-card">
+      <h2 class="modal-title">Prompt Efficiency Report</h2>
+      <div class="credit-big" id="result-credits">0.0</div>
+      <div class="credit-label">total efficiency credits</div>
+
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-name">Words</div><div class="stat-val" id="s-words">0</div><div class="stat-bar"><i id="b-words"></i></div></div>
+        <div class="stat-card"><div class="stat-name">Letters</div><div class="stat-val" id="s-letters">0</div><div class="stat-bar"><i id="b-letters"></i></div></div>
+        <div class="stat-card"><div class="stat-name">Keywords</div><div class="stat-val" id="s-keywords">0</div><div class="stat-bar"><i id="b-keywords"></i></div></div>
+        <div class="stat-card"><div class="stat-name">Vocabulary</div><div class="stat-val" id="s-vocab">0%</div><div class="stat-bar"><i id="b-vocab"></i></div></div>
+        <div class="stat-card"><div class="stat-name">Politeness</div><div class="stat-val" id="s-polite">0</div><div class="stat-bar"><i id="b-polite"></i></div></div>
+        <div class="stat-card"><div class="stat-name">Harshness</div><div class="stat-val" id="s-harsh">0</div><div class="stat-bar"><i id="b-harsh"></i></div></div>
+      </div>
+
+      <div class="tier-box">
+        <div class="tier-name" id="tier-name">—</div>
+        <div class="tier-note" id="tier-note"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="close-modal-btn">Close</button>
+        <button class="btn btn-primary" id="restart-btn">Start a new prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="elim-screen" class="screen hidden">
+    <div class="elim-title">YOU ARE ELIMINATED</div>
+    <p class="elim-msg">
+      You broke the rules by leaving full-screen, using split-screen / floating windows, or leaving the page after the contest started.<br /><br />
+      This attempt is permanently locked. Reload the page to try again.
+    </p>
+  </div>
+
+  <button id="kb-toggle" class="hidden" title="Toggle floating keyboard" aria-label="Toggle keyboard">⌨️</button>
+
+  <div id="floating-kb" aria-label="Floating virtual keyboard">
+    <div class="kb-handle" id="kb-handle">DRAG · FLOATING KEYBOARD</div>
+    <div class="kb-rows" id="kb-rows"></div>
+  </div>
+
+  <div id="toast"></div>
+<script type="module" src="/src/main.jsx"></script></body></html>
