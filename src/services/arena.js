@@ -4,7 +4,7 @@
 export function initArena() {
   "use strict";
 
-  // const ADMIN_EMAIL = "abdhitha123@gmail.com";
+  const API_BASE = import.meta.env.VITE_API_BASE;
   const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
   const ADMIN_NAME = import.meta.env.VITE_ADMIN_NAME;
 
@@ -431,7 +431,7 @@ export function initArena() {
 
     userEmail = emailInput.value.trim().toLowerCase();
 
-    const apiBase = window.__API_URL__ || "http://localhost:5000/api";
+    const apiBase = API_BASE;
 
     try {
       const loginResponse = await fetch(apiBase + "/auth/login", {
@@ -1123,7 +1123,7 @@ export function initArena() {
      * ========================================================
      */
 
-    const apiBase = window.__API_URL__ || "http://localhost:5000/api";
+    const apiBase = API_BASE;
 
     /*
      * ========================================================
@@ -1936,7 +1936,7 @@ export function initArena() {
   // ============================================================
 
   async function loadAdminDashboard() {
-    const apiBase = window.__API_URL__ || "http://localhost:5000/api";
+    const apiBase = API_BASE;
 
     const list = $("admin-submissions-list") || $("requests-list");
 
@@ -3548,7 +3548,7 @@ export function initArena() {
 
     malpracticeReported = true;
 
-    const apiBase = window.__API_URL__ || "http://localhost:5000/api";
+    const apiBase = API_BASE;
 
     const payload = {
       userId: currentUserId,
